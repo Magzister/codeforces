@@ -1,6 +1,8 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include <map>
+#include <utility>
 
 typedef long long ll;
 
@@ -34,6 +36,7 @@ ll getPermutationSum(vector<ll> a) {
 }
 
 void solve() {
+    map<pair<int, int>, ll> cache;
     ll n, m; cin >> n >> m;
     vector<vector<ll>> a(n, vector<ll>(m));
     for (ll i = 0; i < n; i++)
@@ -44,49 +47,37 @@ void solve() {
         }
     }
 
-    vector<vector<ll>> ps(n, vector<ll>(m));
-    ps[0] = a[0];
     for (ll i = 1; i < n; i++)
     {
-        for (ll j = 0; j < m; j++)
-        {
-            ps[i][j] = a[i][ps[i - 1][j] - 1];
-        }
-        // a[i] = getComposition(a[i - 1], a[i]);
+        a[i] = getComposition(a[i - 1], a[i]);
     }
 
     vector<vector<ll>> reverse(n, vector<ll>(m));
     for (ll i = 0; i < n; i++)
     {
-        for (ll j = 0; j < m; j++)
-        {
-            reverse[i][ps[i][j] - 1] = j + 1;
-        }
-        // reverse[i] = getReverse(a[i]);
+        reverse[i] = getReverse(a[i]);
     }
 
     ll q; cin >> q;
     for (ll i = 0; i < q; i++)
     {
         ll l, r; cin >> l >> r;
+        pair<int, int> lr = make_pair(l, r);
+        if (cache.find(lr) != cache.end()) {
+            cout << cache[lr] << "\n";
+            continue;
+        }
         l -= 2;
         r--;
-        ll res = 0;
         vector<ll> res_a(m);
         if (l >= 0) {
-            for (ll j = 0; j < m; j++)
-            {
-                res += (j + 1) * ps[r][reverse[l][j] - 1];
-            }
-            // res_a = getComposition(reverse[l], a[r]);
+            res_a = getComposition(reverse[l], a[r]);
         }
         else {
-            for (ll j = 0; j < m; j++)
-            {
-                res += (j + 1) * ps[r][j];
-            }
-            // ll res = getPermutationSum(res_a);
+            res_a = a[r];
         }
+        ll res = getPermutationSum(res_a);
+        cache[make_pair(l += 2, ++r)] = res;
         cout << res << "\n";
     }
 }
