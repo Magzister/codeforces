@@ -2,50 +2,56 @@
 #include <vector>
 #include <algorithm>
 #include <string>
-#include <utility>
 
 typedef long long ll;
 
 using namespace std;
 
+ll get_count(ll n) {
+    return n * (n + 1) / 2;
+}
+
 void solve() {
     string s, t; cin >> s >> t;
     ll ans = 0;
-    ll start = 0;
-    for (ll i = 0; i < s.size(); i++)
+    vector<int> a;
+    int ind = s.size() - t.size();
+    for (int i = 0; i <= ind; i++)
     {
-        if (start < i) start = i;
-        for (ll j = i; j < s.size(); j++)
+
+        bool match = true;
+        for (int j = 0; j < t.size(); j++)
         {
-            if (j < start + t.size() - 1) {
-                ans++;
-                continue;
-            }
-            bool match = false;
-            for (ll k = start; k <= j - t.size() + 1; k++)
+            if (s[i + j] != t[j])
             {
-                match = true;
-                for (ll x = 0; x < t.size(); x++)
-                {
-                    if (s[k + x] != t[x]) {
-                        match = false;
-                        break;
-                    }
-                }
-                if (match) {
-                    break;
-                }
-                else {
-                    start++;
-                }
-            }
-            if (match) {
+                match = false;
                 break;
             }
-            else {
-                ans++;
-            }
         }
+        if (match) {
+            a.push_back(i);
+        }
+    }
+    if (a.size() > 0) {
+        int r = a[0] + t.size() - 1;
+        int l = a[0];
+        ll n = r;
+        ans += get_count(n);
+        ans -= get_count(r - l - 1);
+        for (ll i = 1; i < a.size(); i++)
+        {
+            r = a[i] + t.size() - 1;
+            l = a[i - 1] + 1;
+            n = r - l;
+            ans += get_count(n);
+            l = a[i];
+            ans -= get_count(r - l - 1);
+        }
+        n = s.size() - (a[a.size() - 1] + 1);
+        ans += get_count(n);
+    }
+    else {
+        ans += get_count(s.size());
     }
 
 
